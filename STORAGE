@@ -1,0 +1,254 @@
+---------STORAGE---------
+
+1.Cloud Storage								(S3)
+2.Persistant Disk							(EBS)
+3.File Storage								(EFS)
+4.Cloud Storage Archive				(S3 Glacier)
+
+
+
+Before cloud companies stored data on: Hard disks,  Local servers,  USB drives,  Office databases
+Problems:Limited space, Risk of data loss, Hard to scale, Slow access for global users So they moved data to cloud.
+
+																							-----------CLOUD STORAGE-----------
+
+A service to store files (objects like images, videos, backups) in the cloud.
+Cloud Storage is an object storage service used to store unstructured data such as images, videos, backups, and logs. It provides highly durable, scalable, and cost-effective storage that can be accessed globally. It is commonly used with CDNs, analytics systems, and backup solutions, and is different from databases which store structured data and support queries.Data Storre not in Database, Cloud Storage is like a very big online hard disk.
+
+PROBLEM WITHOUT CLOUD STORAGE:
+
+If you store files on Compute Engine disk:
+		1.Disk size is limited 
+		2.If VM crashes --> data risk 
+		3.Hard to share globally 
+		4.Scaling is difficult 
+		5.Backup is complex 
+
+SOLUTION :
+
+Cloud Storage gives:
+		1.Unlimited storage 
+		2.Very high durability (99.999999999%) 
+		3.Global access 
+		4.Cheap cost 
+		5.Automatic scaling 
+
+WHEN USE CLOUD STORAGE ??
+		1.Data is unstructured (files, media, backups)
+		2.We don’t need SQL queries
+		3.We want cheap and scalable storage
+WHEN NOT USE CLOUD STORAGE ??
+		1.We need fast transactions like banking systems
+		2.We need relational queries (like SQL joins)
+
+
+USECASE 1	: Website Media Storage
+
+Scenario :
+E-commerce website stores:
+Product images
+Videos
+PDFs
+
+Problem:
+Web servers should not store large files like images and videos.
+
+Solution:
+Store static content in Cloud Storage.
+
+USECASE :2
+Application File Storage (User Uploads)   In instagram upload pics, videos|Here  cloud unlimited storage (Mobile -->API-->Storage)
+
+USECASE3 :3
+Backup & Disaster Recovery Storage || VM disks and databases need backup.|| Store backups in Cloud Storage.
+
+USECASE :4
+Data Lake for Analytics & Big Data ||Huge amount of raw data from systems.|| Store raw data in Cloud Storage before processing.
+
+USECASE :5
+Media Storage for Streaming Platforms ||Videos are too large for servers or databases.||Store media in Cloud Storage.
+						(ARCHITECTURE)
+								Users --> Media CDN --> Cloud Storage(Videos)
+
+(S3 ARCHITECTURE)
+BUCKET --> FOLDER --> FILE
+
+EXAMPLE:
+Bucket: company-website-files
+   ├── images/
+   │     ├── product1.jpg
+   │     └── banner.png
+   ├── videos/
+   └── invoices/
+
+
+Cloud Storage has Different Classes:
+
+		1.Standard Storage : 
+													Frequently accessed data
+													Example: website images
+		2.Nearline Storage :
+													Accessed once a month
+                          					Example: monthly reports
+		3.Coldline Storage :
+													Rarely accessed
+													Example: backups
+	  4.Archive Storage :
+  													Very Rarely accessed
+	  												Example: Legal Data
+
+
+
+	  									--------------PERSISTANT DISK(Hard didk of Cloud VMs)-----------------
+
+Persistent Disk is a permanent storage attached to a Virtual Machine (VM) where the operating system, applications, and data are stored, and the data remains safe even if the VM stops or is deleted.And it will take Snapshot(backup's).
+
+VM without Persistent Disk :
+VM = empty brain 🧠 without memory
+❌ No OS
+❌ No files
+❌ No applications
+❌ No logs
+
+What makes Persistent Disk special?
+	(A) Data survives even if VM stops --> you have a VM with LINUX + Nginix Website if VM crash or stop VM delete, Disk safe 
+			You can create new VM , Attach to same Disk , Data is safe
+	(B) Disk can be detached and attached --> If VM-1 damaged , Disk safe  So attached to VM-2 
+	(C) Disk size can be increased -->You Created 20GB later required 200GB
+	(D) Separate performance and cost control --> Youj choose disk types : 1.Standard HDD (cheap)
+																					  			 2.SSD (fast)
+																								3.Balanced
+																								4.Extreme SSD (very fast),Disk performance is independent
+VM (CPU + RAM)
+     |
+     |
+Persistent Disk (OS + Apps + Data)
+
+VM-1
+ └── Boot Persistent Disk (Linux, 20GB SSD)
+
+-------EXAMPLE:1-----------
+Imagine you run a website:
+Boot Disk → OS + Web server
+Extra Disk → Database / Files / Logs
+
+Why?
+If VM crashes:
+Boot disk might be replaced
+Data disk stays safe
+
+
+-----EXAMPLE :2-------
+🛒E-commerce VM Example
+
+Boot Disk (20GB)
+Stores:
+	Linux OS = 6GB
+	Web server + app = 4GB
+	Total = 10GB
+
+
+Extra Disk You need (100GB)
+Stores:
+	Product images = 30GB
+	Database = 40GB
+	Logs = 10GB
+
+Snapshot Use
+	Before update:
+	Take snapshot of Boot Disk 📸
+	Take snapshot of Extra Disk 📸
+
+If crash happens:
+	Restore disk from snapshot
+	Attach to new VM
+	Website works again ✅
+
+
+Why not just increase boot disk ?
+	You can increase boot disk, but in real systems:
+	1.OS disk should be separate
+	2.Data disk should be separate
+	WHY?
+
+Reason 1: SAFETY
+
+If OS disk gets corrupted:
+OS disk ❌
+Data disk ✅ (safe)
+
+Reason 2: EASY MIGRATION
+
+If VM fails:
+Create new VM
+Attach data disk
+Done ✅
+
+Reason 3: Performance
+
+You can choose:
+OS disk = normal SSD
+Data disk = high-performance SSD
+
+Reason 4: Management
+
+Admins like to separate:
+System files
+Application data
+Database data	
+
+										NOTE:
+													1.we can't create VM without a disk,When you create a VM in Compute Engine
+													2.the system automatically creates a boot persistent disk.
+													3.SnapShot is like backup of the disk 
+
+------EXAMPLE :3---------
+	
+Imagine your laptop has:
+
+Windows
+Files
+Software
+
+Before installing new software, you take a backup.
+If something goes wrong:
+--->You restore the backup.
+That backup = Snapshot.
+
+																1.Before Problem-----VM ---> Persistent Disk (Working)
+																2.Take Snapshot -----Persistent Disk --> Snapshot (Backup)
+																3.After Problem -----Snapshot --> New Persistent Disk --> New VM
+
+
+💡Key Understanding (Very Important)
+✅ Boot Disk = System + App
+✅ Extra Disk = Data (heavy & growing)
+
+
+															 ---------------File Storage---------------
+
+																						
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
