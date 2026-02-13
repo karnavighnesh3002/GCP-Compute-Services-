@@ -1,0 +1,390 @@
+	GCP TERMS
+----COMPUTE-----            AWS TERMS
+1.ComputeEngine   			(EC2)
+2.App Engine      			(Elastic Beanstalk)
+3.Cloud Run		  			(ECS Fargate)
+4.Cloud Functions 			(Lambda)
+5.GKE             			(EKS)
+6.Batch			  			(AWS Batch)
+7.Bare Metal Solution 		(OutpostConceptually)
+8.VMware Engine       		(VMware Cloud)
+9.Cloud CDN & Media CDN  	(CloudFront)
+
+
+										---------ComputeEngine---------- (FULL CONTROL)
+
+A virtual server in the cloud where you control everything (OS, software, configuration).
+
+Use Case 1: COMPANY WEBSITE HOSTING 
+
+
+SCENARIO:
+A Company has a Website like
+Backend:Java , Python, Node.js
+Users : 10,000/day
+Database : MySql
+
+	Earlier (OnPremise)
+1.Only physical server in the office 
+2.Website run only in that particular Server
+
+	Problems:
+1.If server crashes --> website down 
+2.If users increase --> server slow 
+3.Scaling --> buy new server is very Cost and slow
+
+	SOLUTION: 
+			(Architecture)
+
+		USERS -->  LOAD BALANCER -->  COMPUTE ENGINE --> DATABASE															Auto Scaling= MIG + LB
+
+GCP WILL DO :
+
+		1.Create a VM in GCP,  INSTALL LINUX OS,  INSTALL APPLICATION , RUN WEBSITE
+		2.If traffic increases - Increase VM Size more is (VERTICAL SCALING)  (or)Create Multiple VMs is (HORIZONTAL SCALING)
+
+RESULT:
+
+		1. HIGH AVAILABILITY
+		2. EASY SCALING
+		3.PAY ONLY FOR USAGE
+
+
+
+Use Case 2: Legacy Application Migration
+
+SCENARIO:
+A bank has a old application
+Built 10 years ago 
+Runs on Window Server
+Can't run on kubernaties and serverless
+
+
+PROBLEM :
+
+They want to move to cloud but:
+Code is old
+Cannot rewrite the application
+Cannot change architecture
+
+
+SOLUTION :
+		
+		Create a Windows VM in cloud , Install same software , Copy application from old server , Run it in cloud 
+
+		(ARCHITECTURE)
+
+					OLD SERVER --> Data Migration -->  COMPUTE ENGINE VM --> USERS
+
+
+
+											----------APP ENGINE---------			(USE FOR WEB APPS)
+
+There are 3 different ways to auto-create instances in cloud
+
+1.App Engine                   --> Auto scaling without VMs (PaaS)
+2️.MIG (Managed Instance Group) --> Auto scaling with VMs
+3.GKE / Cloud Run              -->Auto scaling with containers
+
+	AppEngine autoomatically create app instance not VMs , you dont see VMs, You don’t manage servers.
+	When traffic increases, App Engine automatically creates more runtime environments (instances) to run your code.
+But you can't see those , Because they are--  Hidden VMs , containers , Google internally creates them 
+
+
+COMPARE VM AND APP ENGINE 
+
+
+In Compute you choose by your own everything like the --name, os, machine type , disk type , vpc subnet , firewall , et...
+In App Engine you just --write your code , create app.yaml , run deploy command (gcloud app deploy), You never choose OS, VM TYPE,DISK,VPC ETC..
+
+Then who create OS , VM and all ?
+Google does it internally
+You cannot see them like VMs
+	In AppEngine you see only Service name , version , instance count , logs & metrics
+
+				(ARCHITECTURE)
+
+						YOUR CODE --> APP ENGINE PLATFORM --> GCP CREATE HIDDEN VM, OS, VPC .... You dont see those in your project 
+
+
+				TRAFFIC INCREASES ---
+									10 users -->1 instance
+									1000 users --> 10 instances
+									10,000 users --> 100 instances
+
+Compute Engine is like Cook you your food by your own
+App Engine is like order food in zomato
+
+
+App Engine has 2 types 
+	1. standard environment--->fully managed , limited control, fast scaling support language like py, node...
+	2. flexible environment--->more control , run in docker, slow scaling,
+
+
+
+												--------CLOUD RUN----------- 
+
+(only run on when needed)(more flexible to app engine)(GOOGLE MANAGE KUBERNATIES FOR YOU )(YOU MANAGE ONLY CONTAINERS)
+A serverless platform that runs containers automatically only when requests come.Cloud Run is a fully managed serverless platform that runs containerized applications and automatically scales based on incoming requests, so we don’t need to manage servers or Kubernetes.
+
+In CloudRun you just DEPLOY container --build docker image , push to artifact registry , Deploy Cloud Run
+docker build -t my-app .
+docker push gcr.io/project/my-app
+gcloud run deploy my-app
+
+				(ARCHITECTURE)
+						YOUR CONTAINER IMAGE -->CLOUD RUN PLATFORM --> GOOGLE AUTOMATICALLY SETUP VM, NETWORK, AUTOSCALING
+
+
+Use Case 1: Microservice API for Mobile App
+
+SCENARIO:
+
+A company has a mobile app like zomato 
+The app needs API like :
+
+	Login API
+	Order API
+	Payment API
+	Notification API
+
+PROBLEM:
+
+If they use VM:
+VM runs 24/7 
+Even if no users, cost continues 
+Scaling manually is difficult 
+
+SOLUTION :
+	Mobile App --> Cloud Run (API Containers) --> Database
+
+HOW IT WORKS?
+
+Normal time:Few users → 1–2 containers run
+Peak time:Many users → Cloud Run automatically creates more containers
+After peak:Containers stop automatically
+
+
+USECASE :2  Event-Based Service (Email / Notifications)
+
+
+
+									-------------CLOUD FUNCTIONS------------(Event based Task)
+
+Run small code automatically when an event happens, without managing servers.
+Cloud Functions is a serverless compute service where we run event-driven code without managing servers. It is used for small, short-running tasks like file processing, API endpoints, notifications, and automation. It automatically scales and charges only for execution time, making it cost-effective compared to traditional VMs.
+
+USECASE 1 : User Registration
+
+SCENARIO:
+A website has a signup page
+When a user signs up, you want to:
+Send welcome email
+Store data
+Send notification
+
+			(ARCHITECTURE)
+					User → Website --> Cloud Function --> Email Service / Database
+
+USECASE 2: E-commerce Order Processing
+
+
+
+													--------GKE---------
+
+Google’s managed Kubernetes that automatically manages thousands of containers for big applications.
+
+WHY GKE ?
+
+Problem with Containers Alone (Docker)
+Imagine you have containers:
+10 containers --> manageable 
+100 containers --> difficult 
+1000 containers --> impossible 
+
+PROBLEMS:
+Which container is running where? What if a container crashes? How to scale containers? How to distribute traffic? 
+DOCKER alome can't do this 
+
+
+SOLUTION :
+		Kubernetes (GKE)
+It automatically deploy containers, scales containers, restart crashed container, distribue traffic etc....
+
+USE CASE 1: E-commerce App
+
+SCENARIO:
+
+Microservices:
+Login Service,Product Service,Cart Service, Order Service, Payment Service, Notification Service  each run in container
+
+(ARCHITECTURE)
+Users
+  ↓
+Load Balancer
+  ↓
+GKE Cluster
+  ├── Login Pods
+  ├── Product Pods
+  ├── Order Pods
+  ├── Payment Pods
+  └── Notification Pods
+  ↓
+Database / Storage
+
+ WHAT HAPPEN IN REAL-TIME ?
+
+Case 1: Traffic increases (Big Sale)
+Example: Big Billion Days Sale 
+Users increase suddenly.
+Kubernetes auto-scales pods.
+											Before sale:
+											Order Service → 2 pods
+											During sale:
+											Order Service → 20 pods    (NO MANUAL WORK NEEDED)
+
+
+Case 2: Pod crashes
+One payment pod crashes.
+Kubernetes detects it.
+Creates a new pod automatically.
+--->Users don’t notice anything.
+
+Case 3: Deploy new version
+
+You want to update Payment Service.
+Kubernetes does:
+Rolling update (no downtime)
+Gradual replacement of pods
+--->App keeps running.
+
+
+
+											-------------------CLOUD BATCH--------------
+Run heavy computing jobs automatically using temporary machines.(Not required 24/7 , required when work is there)
+Batch is a cloud service used to run large-scale, compute-intensive jobs for a limited time. It automatically provisions compute resources, executes jobs, and releases resources after completion. It is mainly used for data processing, machine learning training, log analysis, and report generation, making it cost-efficient compared to running permanent servers.
+
+USECASE :1   E-commerce Daily Reports
+
+Scenario:
+
+An e-commerce company wants:
+Every night at 12 AM:
+	.Calculate total sales
+	.Generate reports
+	.Analyze customer behavior
+Data size:
+	.Millions of orders
+
+			(ARCHITECTURE)			
+				Data--->Batch Job--->Temporary VMs---->Process Data ----> Save Report
+
+USECASE:2  MACHINE LEARNING TRAINING
+
+
+											-----------Bare Metal Solution--------
+
+Real physical servers provided by cloud provider, without virtual machines.
+
+Normally in cloud you get a VM from a physicl macine 
+But in Bare Metal you get the entire physical only for you.
+
+WHY BARE METAL ?
+
+Some applications:
+Need direct hardware access, Don’t support virtualization, Have strict licensing , Need ultra-high performance 
+VMs are slightly slower than physical machines.
+
+-->Hardware dependency
+Some apps need:
+Special CPU
+GPU
+Storage controllers
+VMs cannot fully satisfy this
+
+
+SOLUTION : BARE METAL
+
+BARE METAL GIVES :
+Dedicated physical server 
+No hypervisor overhead 
+Full hardware control 
+High performance 
+--->But still located in Google’s data center.
+
+USE CASES 1: High-Performance Computing (HPC)
+
+Scenario:
+
+Scientific simulations:
+Weather forecasting
+Financial risk models
+AI research
+Physics simulations
+
+Needs:
+Maximum CPU/GPU power
+						(ARCHITECTURE)
+
+						Research System --> Bare Metal Servers --> HPC Processing
+
+USE CASES 2 : SAP Systems
+
+
+											---------VMware Engine---------
+
+												??????????????????????
+
+
+										------------Cloud CDN & Media CDN-------------
+
+CDN---A global network of servers that deliver content from the nearest location to the user.
+CDN is a distributed network of servers that cache and deliver content from locations closest to users, reducing latency and improving performance. It is mainly used for static content such as images, videos, and web assets. Media CDN is optimized for large-scale video streaming. CDN also reduces load on origin servers and improves scalability and user experience.
+
+PROBLEM WITHOUT (CDN)
+Imagine:
+
+Your website server is in the US 
+User is in India 
+When user open website  
+						India --> US Server --> India
+
+								High latency (delay) 
+								Slow loading
+								Server overload 
+								Bad user experience 
+
+
+PROBLEM WITH (CDN)
+CDN stores copies of content in many locations (called Edge Locations).
+
+							India User ---> India CDN Server --> Content
+
+										Faster loading 
+										Less load on main server 
+										Better user experience 
+
+CDN STORES --Images , videos, PDFs ....
+
+USE CASE 1:OTT Platform (Netflix)
+
+Scenario:
+
+Millions of users watch videos
+If videos come from one server: Impossible ❌
+			(MEDIA CDN ARCHITECTURE)
+							User --> Media CDN --> Video Content
+
+								Media CDN is optimized for:
+								Large video files
+								Streaming
+								Low buffering
+								High bandwidth
+								-->Netflix, YouTube, Hotstar use CDN heavily.
+
+
+---------------------------------------------END OF THE COMPUTE-------------------------------------
+
+
+
+
