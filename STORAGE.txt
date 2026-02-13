@@ -226,7 +226,143 @@ That backup = Snapshot.
 
 
 															 ---------------File Storage---------------
+Filestore is a managed NFS (Network File System) service.
+Filestore is a managed NFS-based shared file system that allows multiple VMs or containers to access the same files simultaneously.
 
+It provides:
+
+Shared file storage
+Accessible by multiple VMs at the same time
+
+ 💡Why We Use Filestore ?
+	Problem:
+	1.Multiple VMs need access to same files
+	2.Storing files separately on each VM causes:
+		.Duplication
+		.Sync issues
+		.Complex management
+																				
+	Solution:
+	Filestore provides:
+		.Centralized shared storage
+		.Real-time file access from multiple VMs
+		.Simplified file management
+
+
+USE CASE 1: E-COMMERCE COMPANY
+	Company runs an online shopping website
+
+	Architecture :
+
+	3 Web Servers (VMs)
+	1 Load Balancer
+	Users uploading product images
+
+❌ Problem Without Filestore
+
+Each VM has its own disk.
+
+------Example 1 :-----
+Customer uploads product image on Server 1.
+That image is stored only on: (VM1 Disk)
+
+Now:
+If next user request goes to (VM2) Image not found ❌
+	So you must:
+	Copy image to VM2
+	Copy to VM3
+	Keep syncing constantly
+	This becomes messy and risky❌.
+
+✅ Solution: Use Filestore
+
+		Now the Architecture like :
+
+			 Load Balancer
+               |
+      ---------------------
+      |        |         |
+     VM1      VM2       VM3
+        \       |        /
+           Filestore
+
+Now:
+
+When user uploads image --> saved in Filestore
+All VMs read from same Filestore
+No duplication
+No sync issue
+No confusion
+✔ All servers see same files
+✔ If VM crashes --> files still safe
+✔ Easy to scale to 10 servers
+		
+									🚨 When NOT to Use Filestore
+									❌ For storing videos globally → Use Cloud Storage
+									❌ For VM OS disk → Use Persistent Disk
+									❌ For database storage → Use Persistent Disk / Cloud SQL
+
+
+													--------Cloud Storage Archive-----------
+First Understand the Core Idea
+
+--> Archive = Very cheap storage
+--> Used for rarely accessed data
+-->Retrieval is slow (minutes to hours)
+
+			-->Cloud Storage Archive is ultra-low-cost storage used for long-term retention of rarely accessed data such as compliance records, old backups, and audit logs. Retrieval is slow but storage cost is minimal.
+
+USE CASE 1:
+
+🏦 Scenario: Bank Compliance Requirement
+
+A bank must store:
+Customer transaction records
+Loan documents
+Audit logs
+KYC documents
+For 7–10 years (legal requirement)  || Government rule says: You must keep data for audit purposes.
+
+❌PROBLEM
+
+That data is:
+Very old
+Rarely accessed
+Huge in size (TBs or PBs)
+
+If bank stores this in:
+Standard Cloud Storage
+Cost becomes very high , So they almost never open it because it's waste of money
+
+✅ Solution: Move to Archive Storage
+			Architecture:
+								Active Data --> Standard Storage
+								After 1 Year --> Move to Archive
+
+Now:
+Storage cost is very low
+Data is safe
+If audit happens --> they can retrieve it (but slowly)
+✔ Saves huge cost
+✔ Meets compliance
+✔ Keeps data secure
+
+
+USECASE :2  Hospital
+Hospital must keep old patient reports , MRI Scans , Insurence Docx , 
+-->Doctors should check old patient records like 8 years right ,So After 2 years it will move to Archive.
+			🚨 Important Understanding
+			    ->Archive is not for 
+			    			1.❌ Daily application data
+							2.❌ Frequently accessed files
+							3.❌ Website images
+			
+			🧠 Simple Rule (Remember This)
+
+			If data is:
+			Accessed frequently --> Standard
+			Accessed sometimes --> Nearline / Coldline
+			Rarely accessed but must be kept --> Archive
 																						
 
 
