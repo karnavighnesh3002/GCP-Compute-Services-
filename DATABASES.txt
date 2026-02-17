@@ -1,0 +1,401 @@
+-------DataBase-------
+
+	1.Cloud Storage is for files 
+	2.DataBase are for Structured Data
+
+Cloud SQL	 (SQL)						(RDS)
+Cloud Spanner(SQL)					(Aurora conceptually)
+Fire Storage (NOSQL)				(DynamoDB conceptually)
+Big Table	 (NOSQL)				(DynamoDB conceptually)
+Big Query	 (Analytics DB)				(Redshift)
+
+										
+First Understand the Problem
+
+Before Cloud SQL, if a company wanted a database, they had to:
+1.Install MySQL/PostgreSQL on a VM
+2.Configure storage
+3.Set up backups
+4.Configure replication
+5.Handle crashes
+6.Do patching & upgrades
+7.Manage high availability
+This requires a DBA(Database Administor) || This is risky and complex
+
+					-------CLOUD SQL----------(Structured transcational data and small databases || The data is less than GB only)
+
+Cloud SQL is a fully managed relational database service that supports MySQL, PostgreSQL, and SQL Server. It is used for structured data that requires SQL queries, relationships, and transactions such as users, orders, and business records.	
+
+Google Manage : Installation, Patching, Backups ,High availability ,Replication, Failover										
+
+-->You only focus on using the database.
+
+EXAMPLE :1 E-Commerce App
+
+-->Let's build a shopping wesite
+We need to store:
+Users
+Products
+Orders
+Payments
+These tables are related.
+
+Example:
+User places an order
+Order must link to:
+User table
+Product table
+
+This relationship is very important.
+This is why we use a relational database.
+
+			ARCHITECTURE:
+					Users → Load Balancer → App Server (VM / GKE)
+                               |
+                           Cloud SQL
+
+                     -->App server handles logic.
+					 -->Cloud SQL stores structured data.
+
+-->When we use Cloud SQL
+We use it when:
+We need SQL queries
+Medium-scale applications
+Traditional relational data
+
+-->We do NOT use Cloud SQL:
+Global scale with millions of transactions per second
+Massive distributed systems
+ 
+REGION : SINGLE REGION
+
+ 								------------CLOUD SPANNER----------
+
+Cloud Spanner is a globally distributed, horizontally scalable relational database that provides strong consistency and high availability across multiple regions.
+
+CLOUD SQL is only for Medium applications, Regional workloads, Thousands of users, only one REGION , Scaling is limited 
+
+Now imagine : 
+You are having
+10 million users
+Users from US, India, Europe
+System must never go down
+Data must be consistent globally but Cloud SQL struggles here.
+
+Cloud Spanner is:
+
+👉 A globally distributed relational database
+👉 Supports SQL
+👉 Horizontally scalable
+👉 Strongly consistent
+
+Simple meaning:
+Spanner = SQL database + Global scale + Automatic sharding
+
+EXAMPLE 1 : Global Airline Booking System
+
+Let's take a Indigo Company
+
+Users are are booking tickets from 
+
+-->India 
+-->USA
+-->UAE
+-->AUSTRALIA
+
+❌ What Can Go Wrong with Normal Database?
+
+If database is only in US:
+Indian users experience high latency
+If US region fails --> system down
+Risk of double seat booking
+This is dangerous.
+
+✅ Solution: Cloud Spanner
+
+		Architecture:
+
+						Users (India)  --> Closest Spanner Node
+						Users (USA)     --> Closest Spanner Node
+						Users (UAE) --> Closest Spanner Node
+						All nodes share same consistent databases
+
+✔ Data is globally distributed ,super-scalable SQL database.
+✔ Strong consistency
+✔ If one region fails --> system continues
+✔ No double booking
+
+CLOUD SPANNER IS SPECIAL BECAUSE :
+-->Horizontal Scaling : You can add more nodes → more capacity (No downtime)
+-->Global Multi-Region Setup : Data replicated across continents.
+-->Strong Consistency : If one user books a seat and other users instantly see updated availability.
+
+USECASES : E-COMMERENCE , Banking Applications , Gaming 
+
+
+						------------FILE STORE-----------
+
+Firestore is a scalable NoSQL document database used for flexible, real-time applications such as chat apps, mobile apps, and social platforms.
+
+👉 Automatically scalable
+👉 Real-time synchronized (eg : Auto update in zomato while delivering the order)
+👉 Stores data in JSON-like documents
+		eg: 
+			{
+		 	  "name": "sunny",
+			  "age": 25,
+			  "isOnline": true
+			}
+	
+No fixed colums like SQL
+
+----EXAMPLE 1 : (CHAT APPLICATION)
+	
+	Imagine you are building a chat application
+	You need to store users, chat rooms , messages, etc..
+	Each message look like 
+eg : 
+{
+  "sender": "user_1",
+  "text": "Hello",
+  "timestamp": "2026-02-13",
+  "isRead": false
+}
+
+Messages keep increase every second 
+
+❌ If You Use SQL
+
+Problems:
+Constant inserts
+Need schema changes often
+Real-time sync is hard
+Scaling becomes complex	
+
+✅ If You Use Firestore
+		Architecture:
+				Mobile App ↔ Firestore
+
+When user sends message :
+✔ Stored instantly
+✔ Other user sees it in real-time
+✔ Automatically scales
+✔ No schema changes needed
+
+EXAMPLE : 2  Social Media App
+
+User profile :
+{
+  "name": "Priya",
+  "followers": 1000,
+  "bio": "Cloud Engineer"
+}
+
+Later user adds:
+"instagram_link": "..."
+
+In SQL --> need ALTER TABLE
+In Firestore --> just add new field
+Flexible.
+
+Strong Use Case – Real-Time Tracking App
+
+
+-->Use Firestore when:
+✔ Data is flexible
+✔ Schema changes often
+✔ You need real-time updates
+✔ Mobile-first application
+✔ Massive concurrent users
+
+-->Do NOT use Firestore when:
+❌ You need complex joins
+❌ Heavy relational queries
+❌ Strict financial transactions
+❌ Banking systems
+
+In those cases → Cloud SQL or Spanner
+													
+If data is:
+Structured + relationships + joins → Cloud SQL
+Flexible + real-time + high user scale → Firestore														
+
+						--------------BIG TABLE-------------
+Cloud Bigtable is a high-performance, massively scalable NoSQL wide-column database used for time-series data, IoT workloads, and large-scale analytics logs.
+	--A NoSQL wide-column database
+	--Designed for petabytes of data
+	--Extremely fast for large workloads
+	--Used internally by Google
+
+1-->First Understand Why Bigtable Exists
+
+We already have:
+Cloud SQL → Structured business data
+Firestore → Flexible mobile/chat data
+
+So when do we need Bigtable?
+👉 When data becomes extremely huge
+👉 When we need very fast reads/writes
+👉 When structure is simple
+👉 When traffic is massive
+Bigtable is built for massive scale + high throughput.
+
+It stores data like:
+
+		Row Key -> Column Families -> Columns
+
+It is not like SQL tables.
+It is optimized for scale and speed.
+
+
+USECASE 1: Analytics Logs
+Large Website (Amazon-Level)
+
+Website has:
+Millions of users
+Click tracking
+Page views
+Search history
+
+Every user action is logged.
+This generates huge data.
+
+BigTable Stores 
+UserID + Timestamp → Activity Data
+Very fast reads and writes.
+
+
+EXAMPLE 1 : Gaming Platform
+
+Game with:
+Millions of players
+Leaderboards
+Match history
+Player stats
+
+Bigtable stores:
+PlayerID --> Stats
+Fast lookup
+High concurrency
+
+Use Bigtable when:
+
+✔ Data is extremely large (TB–PB scale)
+✔ High write throughput
+✔ Time-series data
+✔ IoT workloads
+✔ Analytics logs
+✔ Low-latency key-based lookups
+
+
+
+Do NOT use Bigtable when:
+
+❌ You need joins
+❌ Complex SQL queries
+❌ Financial transactions
+❌ Small applications
+
+Then use:
+Cloud SQL
+Spanner
+Firestore
+
+											----------BIGQUERY------------
+BigQuery is a fully managed, serverless data warehouse used for large-scale analytics, reporting, and business intelligence, not for transactional workloads. It is a serverless and Handles TBs or PBs of data , It can scan billions of rows in seconds.
+
+First Understand the Core Idea
+BigQuery is:
+
+👉 A Data Warehouse
+👉 Used for analytics
+👉 Not used for running applications
+👉 Not used for transactions
+
+Very important:
+BigQuery is for analysis, not for day-to-day app operations.
+
+
+-->Why Normal Databases Are Not Good for Analytics
+Imagine you have:
+Cloud SQL storing orders
+App running normally
+Thousands of transactions per second
+
+		Now business team says:
+		“Give me sales report for last 3 years.”
+		“Which city buys more?”
+		“Which product performs best during festivals?”
+
+If you run huge queries on Cloud SQL:
+App becomes slow
+Database performance drops
+Users get delays
+Because Cloud SQL is optimized for:
+✔ Transactions
+❌ Heavy analytics
+
+EXAMPLE 1 : E-Commerce Company
+Company has:
+10 million users
+5 years of order history
+Billions of records
+Daily transactions go to:
+👉 Cloud SQL (operational database)
+
+Every night:
+Data is exported to:
+👉 BigQuery (analytics warehouse)
+
+			ARCHITECTURE :
+					Users → App → Cloud SQL (Transactions)
+					Cloud SQL → ETL / Dataflow → BigQuery (Analytics)
+
+-->Now Business Team Runs Queries Like:
+Total sales last 5 years
+Top 10 products by region
+Monthly growth percentage
+Customer retention analysis
+BigQuery handles this easily.
+
+App is not affected.
+
+
+------Key Characteristics
+👉Columnar storage (optimized for analytics)
+👉Handles petabyte-scale data
+👉Serverless (no VM management)
+👉Pay per query
+👉Extremely fast for aggregation queries
+
+
+Use BigQuery when:
+✔ You need reports
+✔ Business intelligence
+✔ Large-scale analytics
+✔ Historical data analysis
+✔ Dashboarding
+✔ Data science workloads
+
+
+
+Do NOT use BigQuery for:
+❌ Running your application backend
+❌ Storing live user sessions
+❌ High-frequency transactions
+❌ Banking transactions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+									
