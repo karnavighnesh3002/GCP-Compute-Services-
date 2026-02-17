@@ -90,7 +90,7 @@ Cloud Spanner is:
 👉 Strongly consistent
 
 Simple meaning:
-Spanner = SQL database + Global scale + Automatic sharding
+Spanner = SQL database + Global scale + Automatic sharaing
 
 EXAMPLE 1 : Global Airline Booking System
 
@@ -133,7 +133,7 @@ CLOUD SPANNER IS SPECIAL BECAUSE :
 USECASES : E-COMMERENCE , Banking Applications , Gaming 
 
 
-						------------FILE STORE-----------
+						------------FIRE STORE-----------
 
 Firestore is a scalable NoSQL document database used for flexible, real-time applications such as chat apps, mobile apps, and social platforms.
 
