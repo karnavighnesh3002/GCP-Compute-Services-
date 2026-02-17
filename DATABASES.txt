@@ -90,7 +90,7 @@ Cloud Spanner is:
 👉 Strongly consistent
 
 Simple meaning:
-Spanner = SQL database + Global scale + Automatic sharaing
+Spanner = SQL database + Global scale + Automatic sharing
 
 EXAMPLE 1 : Global Airline Booking System
 
